@@ -56,25 +56,49 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 	// Update the camera position and movement if the player moved further away than threshold (enables leaning/ head tilt without moving the body)
 	if (DistanceMoved > this->MovementThreshold)
 	{
+		// Set new body target location
+		this->BodyTargetLocation = CameraCurrentPosition.GetLocation() + (UKismetMathLibrary::GetRightVector(this->BodyTargetRotation) * -20);
+
+		// Update movement speed and direction
 		this->MovementDirection = GetMovementDirection(&LastCameraPosition, &CameraCurrentPosition);
-		this->MovementSpeed = (DistanceMoved / 1000) / DeltaTime; // Division by 1000 to make it meters
+		this->MovementSpeed = DistanceMoved / DeltaTime;
+
+		// Save new position
 		this->LastCameraPosition = CameraCurrentPosition;
-		SetBodyTargetPosition(&CameraCurrentPosition);
 	}
 
 	// Apply new rotation to the body if turned far enough (allows head turning without rotating the whole body)
 	if (YawDifference > this->RotationThreshold)
 	{
-
+		this->BodyTargetRotation.Yaw = CameraCurrentPosition.GetRotation().Z + this->BodyRotationOffset;
 	}
 
+	// If the body hasn't reached it's target location yet we move it towards it.
+	if (BodyCurrentLocation.X == BodyTargetLocation.X && BodyCurrentLocation.Y == BodyTargetLocation.Y)
+	{
+		this->MovementSpeed = 0;
+		this->MovementDirection = 0;
+	}
+	else
+	{
+		// Tick towards location based on movement speed
+		FVector MovementVector = UKismetMathLibrary::GetDirectionUnitVector(this->BodyCurrentLocation, this->BodyTargetLocation) * MovementSpeed * DeltaTime;
+		this->BodyCurrentLocation = this->BodyCurrentLocation += MovementVector;
+		this->Body->SetWorldLocation(BodyCurrentLocation);
+	}
 
+	// Always set Z to enable seamless crouching
+	FVector BodyLocation = FVector(BodyCurrentLocation.X, BodyCurrentLocation.Y, BodyTargetLocation.Z - this->PlayerHeight);
+	this->Body->SetWorldLocation(BodyLocation);
 }
 
+/*
+ * Sets the body target position to the camera position, rotating and moving it down so that the character eyes match the HMD position
+*/
 void UIKBodyComponent::SetBodyTargetPosition(FTransform* CameraTransform)
 {
 	this->BodyTargetRotation.Yaw = CameraTransform->GetRotation().Z + this->BodyRotationOffset;
-	this->BodyTargetLocation = CameraTransform->GetLocation() + UKismetMathLibrary::GetRightVector(this->BodyTargetRotation) * -20;
+	this->BodyTargetLocation = CameraTransform->GetLocation() + (UKismetMathLibrary::GetRightVector(this->BodyTargetRotation) * -20);
 	this->BodyTargetLocation.Z = BodyTargetLocation.Z - this->PlayerHeight;
 }
 
