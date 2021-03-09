@@ -1,0 +1,33 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Unreal Body Plugin",
+	"Description": "Plugin that extends the VRExpansion plugin by providing full body IK emulation support.",
+	"Category": "VR",
+	"CreatedBy": "Kaz Voeten",
+	"CreatedByURL": "https://kazvoeten.com",
+	"DocsURL": "body.kazvoeten.com",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": true,
+	"Installed": false,
+	"Modules" :
+	[
+		{
+			"Name" : "UnrealBody",
+			"Type" : "Runtime",
+			"LoadingPhase" : "PostConfigInit",
+			"WhitelistPlatforms" : [ "Win64" ]
+		}
+	],
+	"Plugins":
+	[
+		{
+			"Name" : "VRExpansionPlugin",
+			"Enabled" : true
+		}
+	]
+}
