@@ -8,23 +8,40 @@ UIKBodyComponent::UIKBodyComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.TickInterval = .01f;
+	bAutoActivate = true;
 }
 
 void UIKBodyComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (Body != nullptr)
+	if (Body != nullptr && Camera != nullptr)
 	{
 		// Detach the body from it's parent so it doesn't automatically move with the players head movement.
 		static FDetachmentTransformRules DetachRules 
 			= FDetachmentTransformRules(EDetachmentRule::KeepWorld, false);
 		Body->DetachFromComponent(DetachRules);
+
+		// Set body at camera position + offsets
+		this->BodyTargetLocation = Camera->GetComponentLocation()
+			+ (UKismetMathLibrary::GetForwardVector(Camera->GetComponentRotation()) * -20); // 20 units back from cam to avoid clipping
+		this->BodyTargetLocation.Z -= this->PlayerHeight;
+		this->Body->SetWorldLocation(this->BodyTargetLocation);
+
+		// Rotate Body to match
+		this->BodyTargetRotation.Yaw = Camera->GetComponentRotation().Yaw + this->BodyRotationOffset;
+		this->Body->SetWorldRotation(this->BodyTargetRotation);
+
+		// Set current position to match target
+		this->BodyCurrentLocation = this->BodyTargetLocation;
+		this->BodyCurrentRotation = this->BodyCurrentRotation;
+		
+		UE_LOG(LogIKBodyComponent, Log, TEXT("Succesfully initialized with body and camera!"));
 	}
 	else
 	{
 		// Body should be assigned in component owner's construction script!
-		UE_LOG(LogIKBodyComponent, Warning, TEXT("Please ensure a body reference is set before BeginPlay by setting it in the owner's construction script.)"));
+		UE_LOG(LogIKBodyComponent, Warning, TEXT("Please ensure a body and camera reference are set before BeginPlay by setting it in the owner's construction script."));
 	}
 }
 
@@ -57,7 +74,8 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 	if (DistanceMoved > this->MovementThreshold)
 	{
 		// Set new body target location
-		this->BodyTargetLocation = CameraCurrentPosition.GetLocation() + (UKismetMathLibrary::GetRightVector(this->BodyTargetRotation) * -20);
+		this->BodyTargetLocation = CameraCurrentPosition.GetLocation() 
+			+ (UKismetMathLibrary::GetForwardVector(CameraCurrentPosition.GetRotation().Rotator()) * -20); // 20 units back from cam to avoid clipping
 
 		// Update movement speed and direction
 		this->MovementDirection = GetMovementDirection(&LastCameraPosition, &CameraCurrentPosition);
@@ -74,21 +92,31 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 	}
 
 	// If the body hasn't reached it's target location yet we move it towards it.
-	if (BodyCurrentLocation.X == BodyTargetLocation.X && BodyCurrentLocation.Y == BodyTargetLocation.Y)
+	if (UKismetMathLibrary::NearlyEqual_FloatFloat(BodyCurrentLocation.X, BodyTargetLocation.X, 9.99997f) 
+		&& UKismetMathLibrary::NearlyEqual_FloatFloat(BodyCurrentLocation.Y, BodyTargetLocation.Y, 9.99997f))
 	{
 		this->MovementSpeed = 0;
 		this->MovementDirection = 0;
+		UE_LOG(LogIKBodyComponent, Log, TEXT("Target reached!"));
 	}
 	else
 	{
 		// Tick towards location based on movement speed
 		FVector MovementVector = UKismetMathLibrary::GetDirectionUnitVector(this->BodyCurrentLocation, this->BodyTargetLocation) * MovementSpeed * DeltaTime;
-		this->BodyCurrentLocation = this->BodyCurrentLocation += MovementVector;
+		this->BodyCurrentLocation = this->BodyCurrentLocation + MovementVector;
 		this->Body->SetWorldLocation(BodyCurrentLocation);
+		UE_LOG(LogIKBodyComponent, Log, TEXT("Moving to Target Location (XY): %f, %f"), BodyCurrentLocation.X, BodyCurrentLocation.Y);
+	}
+
+	// If the body hasn't reached it's target rotation yet we interp towards it.
+	if (BodyCurrentRotation.Yaw != BodyTargetRotation.Yaw)
+	{
+		UKismetMathLibrary::FInterpTo(BodyCurrentRotation.Yaw, BodyTargetRotation.Yaw, DeltaTime, UKismetMathLibrary::Max(2.0f, MovementSpeed));
+		this->Body->SetWorldRotation(BodyTargetRotation);
 	}
 
 	// Always set Z to enable seamless crouching
-	FVector BodyLocation = FVector(BodyCurrentLocation.X, BodyCurrentLocation.Y, BodyTargetLocation.Z - this->PlayerHeight);
+	FVector BodyLocation = FVector(BodyCurrentLocation.X, BodyCurrentLocation.Y, CameraCurrentPosition.GetLocation().Z - this->PlayerHeight);
 	this->Body->SetWorldLocation(BodyLocation);
 }
 
@@ -105,7 +133,7 @@ void UIKBodyComponent::SetBodyTargetPosition(FTransform* CameraTransform)
 /*
  * This function isn't fully correct, expected result is direction in degrees between -180 and 180
 */
-float GetMovementDirection(FTransform* First, FTransform* Second)
+float UIKBodyComponent::GetMovementDirection(FTransform* First, FTransform* Second)
 {
 	float Rotation = 0;
 
