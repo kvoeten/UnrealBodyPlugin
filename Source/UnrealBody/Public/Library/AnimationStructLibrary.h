@@ -92,6 +92,36 @@ struct FAnimGraphFingerIK
 
 	FAnimGraphFingerIK()
 	{
-		
+		// Populate the MAP on construction
+		BlendMap.Add(EFingerBone::index_01_l, 0.0f);
+		BlendMap.Add(EFingerBone::index_02_l, 0.0f);
+		BlendMap.Add(EFingerBone::index_03_l, 0.0f);
+		BlendMap.Add(EFingerBone::middle_01_l, 0.0f);
+		BlendMap.Add(EFingerBone::middle_02_l, 0.0f);
+		BlendMap.Add(EFingerBone::middle_03_l, 0.0f);
+		BlendMap.Add(EFingerBone::ring_01_l, 0.0f);
+		BlendMap.Add(EFingerBone::ring_02_l, 0.0f);
+		BlendMap.Add(EFingerBone::ring_03_l, 0.0f);
+		BlendMap.Add(EFingerBone::pinky_01_l, 0.0f);
+		BlendMap.Add(EFingerBone::pinky_02_l, 0.0f);
+		BlendMap.Add(EFingerBone::pinky_03_l, 0.0f);
+		BlendMap.Add(EFingerBone::thumb_01_l, 0.0f);
+		BlendMap.Add(EFingerBone::thumb_02_l, 0.0f);
+		BlendMap.Add(EFingerBone::thumb_03_l, 0.0f);
+		BlendMap.Add(EFingerBone::index_01_r, 0.0f);
+		BlendMap.Add(EFingerBone::index_02_r, 0.0f);
+		BlendMap.Add(EFingerBone::index_03_r, 0.0f);
+		BlendMap.Add(EFingerBone::middle_01_r, 0.0f);
+		BlendMap.Add(EFingerBone::middle_02_r, 0.0f);
+		BlendMap.Add(EFingerBone::middle_03_r, 0.0f);
+		BlendMap.Add(EFingerBone::ring_01_r, 0.0f);
+		BlendMap.Add(EFingerBone::ring_02_r, 0.0f);
+		BlendMap.Add(EFingerBone::ring_03_r, 0.0f);
+		BlendMap.Add(EFingerBone::pinky_01_r, 0.0f);
+		BlendMap.Add(EFingerBone::pinky_02_r, 0.0f);
+		BlendMap.Add(EFingerBone::pinky_03_r, 0.0f);
+		BlendMap.Add(EFingerBone::thumb_01_r, 0.0f);
+		BlendMap.Add(EFingerBone::thumb_02_r, 0.0f);
+		BlendMap.Add(EFingerBone::thumb_03_r, 0.0f);
 	}
 };
