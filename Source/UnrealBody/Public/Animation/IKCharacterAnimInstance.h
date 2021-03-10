@@ -35,7 +35,7 @@ private:
 	void UpdateHandValues();
 
 	/** Helper function that performs foot trace and sets Anim Graph values */
-	void TraceFoot(FVector* Foot, FVector* ResultLocation,
+	void TraceFoot(FVector Foot, FVector* ResultLocation,
 		FRotator* ResultRotation, float* Effector, UWorld* World, FCollisionQueryParams* Params);
 
 protected:

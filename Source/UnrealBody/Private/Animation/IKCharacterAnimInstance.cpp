@@ -36,9 +36,12 @@ void UIKCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	UpdateFootIK();
-	UpdateHeadValues();
-	UpdateMovementValues(DeltaSeconds);
+	if (this->BodyComponent != nullptr)
+	{
+		UpdateFootIK();
+		UpdateHeadValues();
+		UpdateMovementValues(DeltaSeconds);
+	}
 }
 
 void UIKCharacterAnimInstance::UpdateFootIK()
@@ -57,21 +60,21 @@ void UIKCharacterAnimInstance::UpdateFootIK()
 	Params.AddIgnoredActor(Character);
 
 	// Trace both feet and set result in AnimGraph
-	TraceFoot(&LeftFoot, &FootIKValues.LeftFootLocation, 
+	TraceFoot(LeftFoot, &FootIKValues.LeftFootLocation, 
 		&FootIKValues.LeftFootRotation, &FootIKValues.LeftEffector, World, &Params);
-	TraceFoot(&RightFoot, &FootIKValues.RightFootLocation,
+	TraceFoot(RightFoot, &FootIKValues.RightFootLocation,
 		&FootIKValues.RightFootRotation, &FootIKValues.RightEffector, World, &Params);
 }
 
-void UIKCharacterAnimInstance::TraceFoot(FVector* Foot, FVector* ResultLocation, 
+void UIKCharacterAnimInstance::TraceFoot(FVector Foot, FVector* ResultLocation, 
 	FRotator* ResultRotation, float* Effector, UWorld* World, FCollisionQueryParams* Params)
 {
 	// Start location is half player height, End location is current foot location
-	FVector Start = FVector(Foot->X, Foot->Y, Foot->Z + (this->BodyComponent->PlayerHeight / 2));
+	FVector Start = FVector(Foot.X, Foot.Y, Foot.Z + (this->BodyComponent->PlayerHeight / 2));
 
 	// Trace
 	FHitResult HitResult; // Establish Hit Result
-	World->LineTraceSingleByChannel(HitResult, Start, *Foot, ECC_Visibility, *Params);
+	World->LineTraceSingleByChannel(HitResult, Start, Foot, ECC_Visibility, *Params);
 
 	// Check for hit
 	if (HitResult.bBlockingHit)
@@ -79,13 +82,13 @@ void UIKCharacterAnimInstance::TraceFoot(FVector* Foot, FVector* ResultLocation,
 		const FVector ImpactPoint = HitResult.ImpactPoint;
 		const FVector ImpactNormal = HitResult.ImpactNormal;
 
-		if (ImpactPoint.Z > Foot->Z)
+		if (ImpactPoint.Z > Foot.Z)
 		{
 			// Set new location
 			*ResultLocation = HitResult.ImpactPoint;
 
 			// Set effector
-			*Effector = UKismetMathLibrary::Abs(ResultLocation->Z - Foot->Z);
+			*Effector = UKismetMathLibrary::Abs(ResultLocation->Z - Foot.Z);
 
 			// Calculate and set new rotation
 			(*ResultRotation).Roll = UKismetMathLibrary::Atan2(ImpactNormal.Y, ImpactNormal.Z);
