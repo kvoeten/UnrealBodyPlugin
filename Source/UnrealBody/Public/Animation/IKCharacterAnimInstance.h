@@ -26,11 +26,13 @@ public:
 
 private:
 
-	void UpdateFootIK(float DeltaSeconds);
+	void UpdateFootIK();
 
 	void UpdateMovementValues(float DeltaSeconds);
 
 	void UpdateHeadValues();
+
+	void UpdateHandValues();
 
 	/** Helper function that performs foot trace and sets Anim Graph values */
 	void TraceFoot(FVector* Foot, FVector* ResultLocation,

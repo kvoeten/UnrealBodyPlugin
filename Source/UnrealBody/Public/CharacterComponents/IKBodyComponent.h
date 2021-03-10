@@ -44,6 +44,10 @@ public:
 		float PlayerHeight = 180.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
+		float BodyOffset = -20.0f
+		UMETA(Tooltip = "Units to move the body from the camera looking direction to avoid clipping.");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
 		float BodyRotationOffset = -90.0f 
 		UMETA(Tooltip = "Corrective rotation to align the body with the camera direction.");
 

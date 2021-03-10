@@ -36,12 +36,12 @@ void UIKCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	UpdateFootIK(DeltaSeconds); 
-	UpdateMovementValues(DeltaSeconds);
+	UpdateFootIK();
 	UpdateHeadValues();
+	UpdateMovementValues(DeltaSeconds);
 }
 
-void UIKCharacterAnimInstance::UpdateFootIK(float DeltaSeconds)
+void UIKCharacterAnimInstance::UpdateFootIK()
 {
 	// Get actor socket locations
 	USkeletalMeshComponent* OwnerComp = GetOwningComponent();
@@ -96,14 +96,34 @@ void UIKCharacterAnimInstance::TraceFoot(FVector* Foot, FVector* ResultLocation,
 	}
 }
 
-void UIKCharacterAnimInstance::UpdateMovementValues(float DeltaSeconds)
-{
-	
-}
-
 void UIKCharacterAnimInstance::UpdateHeadValues()
 {
 	//Simply set head values to match camera at all times.
 	HeadIKValues.HeadRotation = this->BodyComponent->Camera->GetComponentRotation();
 	HeadIKValues.HeadLocation = this->BodyComponent->Camera->GetComponentLocation();
+
+	// Apply the same offset as the component does
+	HeadIKValues.HeadLocation += (UKismetMathLibrary::GetForwardVector(HeadIKValues.HeadRotation) * this->BodyComponent->BodyOffset);
+}
+
+void UIKCharacterAnimInstance::UpdateHandValues()
+{
+	USkeletalMeshComponent* OwnerComp = GetOwningComponent();
+
+	// Get bone locations
+	FVector LeftHand = OwnerComp->GetSocketLocation("hand_l");
+	FVector RightHand = OwnerComp->GetSocketLocation("hand_r");
+
+	// Get desired socket locations
+	FVector LeftSocket = OwnerComp->GetSocketLocation("hand_lSocket");
+	FVector RightSocket = OwnerComp->GetSocketLocation("hand_rSocket");
+
+	// Hand locations are controller locations + corrective offset defined by socket difference
+	ArmIKValues.LeftHandLocation = this->BodyComponent->LeftController->GetActorLocation() + (LeftSocket - LeftHand);
+	ArmIKValues.RightHandLocation = this->BodyComponent->RightController->GetActorLocation() + (RightSocket - RightHand);
+}
+
+void UIKCharacterAnimInstance::UpdateMovementValues(float DeltaSeconds)
+{
+	
 }
