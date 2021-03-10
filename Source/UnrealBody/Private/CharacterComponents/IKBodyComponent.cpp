@@ -34,7 +34,7 @@ void UIKBodyComponent::BeginPlay()
 
 		// Set current position to match target
 		this->BodyCurrentLocation = this->BodyTargetLocation;
-		this->BodyCurrentRotation = this->BodyCurrentRotation;
+		this->BodyCurrentRotation = this->BodyTargetRotation;
 		
 		UE_LOG(LogIKBodyComponent, Log, TEXT("Succesfully initialized with body and camera!"));
 	}
@@ -67,7 +67,7 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 
 	// Calculate Yaw difference
 	float YawDifference = UKismetMathLibrary::Abs(
-		CameraCurrentPosition.GetRotation().Z - LastCameraPosition.GetRotation().Z
+		CameraCurrentPosition.GetRotation().Rotator().Yaw - LastCameraPosition.GetRotation().Rotator().Yaw
 	);
 
 	// Update the camera position and movement if the player moved further away than threshold (enables leaning/ head tilt without moving the body)
@@ -88,7 +88,7 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 	// Apply new rotation to the body if turned far enough (allows head turning without rotating the whole body)
 	if (YawDifference > this->RotationThreshold)
 	{
-		this->BodyTargetRotation.Yaw = CameraCurrentPosition.GetRotation().Z + this->BodyRotationOffset;
+		this->BodyTargetRotation.Yaw = Camera->GetComponentRotation().Yaw + this->BodyRotationOffset;
 	}
 
 	// If the body hasn't reached it's target location yet we move it towards it.
@@ -97,7 +97,6 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 	{
 		this->MovementSpeed = 0;
 		this->MovementDirection = 0;
-		UE_LOG(LogIKBodyComponent, Log, TEXT("Target reached!"));
 	}
 	else
 	{
@@ -105,14 +104,13 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 		FVector MovementVector = UKismetMathLibrary::GetDirectionUnitVector(this->BodyCurrentLocation, this->BodyTargetLocation) * MovementSpeed * DeltaTime;
 		this->BodyCurrentLocation = this->BodyCurrentLocation + MovementVector;
 		this->Body->SetWorldLocation(BodyCurrentLocation);
-		UE_LOG(LogIKBodyComponent, Log, TEXT("Moving to Target Location (XY): %f, %f"), BodyCurrentLocation.X, BodyCurrentLocation.Y);
 	}
 
 	// If the body hasn't reached it's target rotation yet we interp towards it.
-	if (BodyCurrentRotation.Yaw != BodyTargetRotation.Yaw)
+	if (!UKismetMathLibrary::NearlyEqual_FloatFloat(BodyCurrentRotation.Yaw, BodyTargetRotation.Yaw, 9.99997f))
 	{
-		UKismetMathLibrary::FInterpTo(BodyCurrentRotation.Yaw, BodyTargetRotation.Yaw, DeltaTime, UKismetMathLibrary::Max(2.0f, MovementSpeed));
-		this->Body->SetWorldRotation(BodyTargetRotation);
+		BodyCurrentRotation.Yaw = UKismetMathLibrary::FInterpTo(BodyCurrentRotation.Yaw, BodyTargetRotation.Yaw, DeltaTime, UKismetMathLibrary::Max(5.0f, MovementSpeed));
+		this->Body->SetWorldRotation(BodyCurrentRotation);
 	}
 
 	// Always set Z to enable seamless crouching
