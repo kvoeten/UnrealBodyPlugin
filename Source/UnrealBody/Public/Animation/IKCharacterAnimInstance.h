@@ -7,6 +7,8 @@
 
 #include "IKCharacterAnimInstance.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogIKBodyAnimation, Log, All);
+
 class IKBodyComponent;
 
 /**
@@ -30,10 +32,18 @@ private:
 
 	void UpdateRotationValues();
 
+	/** Helper function that performs foot trace and sets Anim Graph values */
+	void TraceFoot(FVector* Foot, FVector* ResultLocation,
+		FRotator* ResultRotation, float* Effector, UWorld* World, FCollisionQueryParams* Params);
+
 protected:
 	/** References */
 	UPROPERTY(BlueprintReadOnly)
 	UIKBodyComponent* BodyComponent = nullptr;
+
+	/** References */
+	UPROPERTY(BlueprintReadOnly)
+	APawn* Character = nullptr;
 
 protected:
 	/** Anim Graph - Foot IK */

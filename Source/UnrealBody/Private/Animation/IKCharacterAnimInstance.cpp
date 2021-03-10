@@ -10,9 +10,26 @@
 #include "Library/AnimationStructLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
+DEFINE_LOG_CATEGORY(LogIKBodyAnimation);
+
 void UIKCharacterAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
+
+	APawn* PawnOwner = TryGetPawnOwner();
+	if (PawnOwner != nullptr)
+	{
+		// Set Character Reference
+		this->Character = PawnOwner;
+
+		// Try find IKBodyComponent
+		TArray<UIKBodyComponent*> Comps;
+		PawnOwner->GetComponents(Comps);
+		if (Comps.Num() > 0) this->BodyComponent = Comps[0];
+		else UE_LOG(LogIKBodyAnimation, Warning, TEXT("Pawn owner has no IKBodyComponent"));
+	}
+
+	else UE_LOG(LogIKBodyAnimation, Warning, TEXT("Unable to get pawn owner!"));
 }
 
 void UIKCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -26,10 +43,57 @@ void UIKCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 void UIKCharacterAnimInstance::UpdateFootIK(float DeltaSeconds)
 {
-	FVector FootOffsetLTarget = FVector::ZeroVector;
-	FVector FootOffsetRTarget = FVector::ZeroVector;
-
+	// Get actor socket locations
+	USkeletalMeshComponent* OwnerComp = GetOwningComponent();
+	FVector LeftFoot = OwnerComp->GetSocketLocation("foot_l");
+	FVector RightFoot = OwnerComp->GetSocketLocation("foot_r");
 	
+	// Establish trace context
+	UWorld* World = GetWorld();
+	check(World);
+
+	// Filter out player from hits
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(Character);
+
+	// Trace both feet and set result in AnimGraph
+	TraceFoot(&LeftFoot, &FootIKValues.LeftFootLocation, 
+		&FootIKValues.LeftFootRotation, &FootIKValues.LeftEffector, World, &Params);
+	TraceFoot(&RightFoot, &FootIKValues.RightFootLocation,
+		&FootIKValues.RightFootRotation, &FootIKValues.RightEffector, World, &Params);
+}
+
+void UIKCharacterAnimInstance::TraceFoot(FVector* Foot, FVector* ResultLocation, 
+	FRotator* ResultRotation, float* Effector, UWorld* World, FCollisionQueryParams* Params)
+{
+	// Start location is half player height, End location is current foot location
+	FVector Start = FVector(Foot->X, Foot->Y, Foot->Z + (this->BodyComponent->PlayerHeight / 2));
+
+	// Trace
+	FHitResult HitResult; // Establish Hit Result
+	World->LineTraceSingleByChannel(HitResult, Start, *Foot, ECC_Visibility, Params);
+
+	// Check for hit
+	if (HitResult.bBlockingHit)
+	{
+		const FVector ImpactPoint = HitResult.ImpactPoint;
+		const FVector ImpactNormal = HitResult.ImpactNormal;
+
+		if (ImpactPoint.Z > Foot->Z)
+		{
+			// Set new location
+			*ResultLocation = HitResult.ImpactPoint;
+
+			// Set effector
+			*Effector = UKismetMathLibrary::Abs(ResultLocation->Z - Foot->Z);
+
+			// Calculate and set new rotation
+			(*ResultRotation).Roll = UKismetMathLibrary::Atan2(ImpactNormal.Y, ImpactNormal.Z);
+			(*ResultRotation).Pitch = UKismetMathLibrary::Atan2(ImpactNormal.X, ImpactNormal.Z);
+			(*ResultRotation).Yaw = 0;
+		}
+
+	}
 }
 
 void UIKCharacterAnimInstance::UpdateMovementValues(float DeltaSeconds)

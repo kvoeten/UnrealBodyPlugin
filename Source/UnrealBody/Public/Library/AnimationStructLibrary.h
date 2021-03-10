@@ -27,6 +27,12 @@ struct FAnimGraphFootIK
 		FVector RightFootLocation = FVector();
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+		float LeftEffector = 0.0f;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+		float RightEffector = 0.0f;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 		FRotator LeftFootRotation = FRotator();
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
