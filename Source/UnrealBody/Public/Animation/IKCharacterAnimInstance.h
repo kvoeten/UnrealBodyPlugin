@@ -30,7 +30,7 @@ private:
 
 	void UpdateMovementValues(float DeltaSeconds);
 
-	void UpdateRotationValues();
+	void UpdateHeadValues();
 
 	/** Helper function that performs foot trace and sets Anim Graph values */
 	void TraceFoot(FVector* Foot, FVector* ResultLocation,

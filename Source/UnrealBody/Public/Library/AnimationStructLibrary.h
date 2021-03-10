@@ -12,6 +12,9 @@ struct FAnimGraphHeadIK
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 		FRotator HeadRotation = FRotator();
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+		FVector HeadLocation = FVector();
 };
 
 /** Anim Graph - Foot IK */

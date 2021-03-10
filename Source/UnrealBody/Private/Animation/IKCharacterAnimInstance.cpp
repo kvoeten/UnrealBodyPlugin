@@ -38,7 +38,7 @@ void UIKCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	UpdateFootIK(DeltaSeconds); 
 	UpdateMovementValues(DeltaSeconds);
-	UpdateRotationValues();
+	UpdateHeadValues();
 }
 
 void UIKCharacterAnimInstance::UpdateFootIK(float DeltaSeconds)
@@ -101,7 +101,9 @@ void UIKCharacterAnimInstance::UpdateMovementValues(float DeltaSeconds)
 	
 }
 
-void UIKCharacterAnimInstance::UpdateRotationValues()
+void UIKCharacterAnimInstance::UpdateHeadValues()
 {
-	
+	//Simply set head values to match camera at all times.
+	HeadIKValues.HeadRotation = this->BodyComponent->Camera->GetComponentRotation();
+	HeadIKValues.HeadLocation = this->BodyComponent->Camera->GetComponentLocation();
 }
