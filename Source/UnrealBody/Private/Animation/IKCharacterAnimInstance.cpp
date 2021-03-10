@@ -71,7 +71,7 @@ void UIKCharacterAnimInstance::TraceFoot(FVector* Foot, FVector* ResultLocation,
 
 	// Trace
 	FHitResult HitResult; // Establish Hit Result
-	World->LineTraceSingleByChannel(HitResult, Start, *Foot, ECC_Visibility, Params);
+	World->LineTraceSingleByChannel(HitResult, Start, *Foot, ECC_Visibility, *Params);
 
 	// Check for hit
 	if (HitResult.bBlockingHit)
