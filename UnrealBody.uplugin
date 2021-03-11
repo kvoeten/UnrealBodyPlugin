@@ -22,12 +22,5 @@
 			"LoadingPhase" : "PostConfigInit",
 			"WhitelistPlatforms" : [ "Win64" ]
 		}
-	],
-	"Plugins":
-	[
-		{
-			"Name" : "VRExpansionPlugin",
-			"Enabled" : true
-		}
 	]
 }

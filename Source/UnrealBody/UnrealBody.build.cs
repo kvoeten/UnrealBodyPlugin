@@ -30,8 +30,7 @@ public class UnrealBody : ModuleRules
                 "Sockets",
                 "Networking",
                 "Engine",
-                "InputCore",
-				"VRExpansionPlugin"
+                "InputCore"
 			}
 		);
 
