@@ -30,12 +30,6 @@ struct FAnimGraphFootIK
 		FVector RightFootLocation = FVector();
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
-		float LeftEffector = 0.0f;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
-		float RightEffector = 0.0f;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 		FRotator LeftFootRotation = FRotator();
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
@@ -52,7 +46,13 @@ struct FAnimGraphArmIK
 		FVector LeftHandLocation = FVector();
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+		FRotator LeftHandRotation = FRotator();
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 		FVector RightHandLocation = FVector();
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+		FRotator RightHandRotation = FRotator();
 };
 
 UENUM(BlueprintType)

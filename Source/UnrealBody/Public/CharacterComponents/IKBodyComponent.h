@@ -24,10 +24,10 @@ public:
 		USkeletalMeshComponent* Body = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
-		AActor* RightController = nullptr;
+		UPrimitiveComponent* RightController = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
-		AActor* LeftController = nullptr;
+		UPrimitiveComponent* LeftController = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
 		UCameraComponent* Camera = nullptr;

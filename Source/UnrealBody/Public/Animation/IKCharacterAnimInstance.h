@@ -36,7 +36,7 @@ private:
 
 	/** Helper function that performs foot trace and sets Anim Graph values */
 	void TraceFoot(FVector Foot, FVector* ResultLocation,
-		FRotator* ResultRotation, float* Effector, UWorld* World, FCollisionQueryParams* Params);
+		FRotator* ResultRotation, UWorld* World, FCollisionQueryParams* Params);
 
 protected:
 	/** References */

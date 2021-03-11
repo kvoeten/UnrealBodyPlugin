@@ -21,12 +21,7 @@ void UIKCharacterAnimInstance::NativeInitializeAnimation()
 	{
 		// Set Character Reference
 		this->Character = PawnOwner;
-
-		// Try find IKBodyComponent
-		TArray<UIKBodyComponent*> Comps;
-		PawnOwner->GetComponents(Comps);
-		if (Comps.Num() > 0) this->BodyComponent = Comps[0];
-		else UE_LOG(LogIKBodyAnimation, Warning, TEXT("Pawn owner has no IKBodyComponent"));
+		
 	}
 
 	else UE_LOG(LogIKBodyAnimation, Warning, TEXT("Unable to get pawn owner!"));
@@ -36,12 +31,22 @@ void UIKCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
+	if (!Character || DeltaSeconds == 0.0f)
+	{
+		return;
+	}
+
+	this->BodyComponent = (UIKBodyComponent*)Character->GetComponentByClass(UIKBodyComponent::StaticClass());
 	if (this->BodyComponent != nullptr)
 	{
-		UpdateFootIK();
+		UpdateHandValues();
 		UpdateHeadValues();
 		UpdateMovementValues(DeltaSeconds);
 	}
+	else UE_LOG(LogIKBodyAnimation, Warning, TEXT("Pawn owner has no IKBodyComponent"));
+
+	// Feet IK doesn't need any component references
+	UpdateFootIK();
 }
 
 void UIKCharacterAnimInstance::UpdateFootIK()
@@ -59,18 +64,23 @@ void UIKCharacterAnimInstance::UpdateFootIK()
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(Character);
 
+	// Debug Draw
+	const FName TraceTag("FeetTraces");
+	World->DebugDrawTraceTag = TraceTag;
+	Params.TraceTag = TraceTag;
+
 	// Trace both feet and set result in AnimGraph
 	TraceFoot(LeftFoot, &FootIKValues.LeftFootLocation, 
-		&FootIKValues.LeftFootRotation, &FootIKValues.LeftEffector, World, &Params);
+		&FootIKValues.LeftFootRotation, World, &Params);
 	TraceFoot(RightFoot, &FootIKValues.RightFootLocation,
-		&FootIKValues.RightFootRotation, &FootIKValues.RightEffector, World, &Params);
+		&FootIKValues.RightFootRotation, World, &Params);
 }
 
 void UIKCharacterAnimInstance::TraceFoot(FVector Foot, FVector* ResultLocation, 
-	FRotator* ResultRotation, float* Effector, UWorld* World, FCollisionQueryParams* Params)
+	FRotator* ResultRotation, UWorld* World, FCollisionQueryParams* Params)
 {
-	// Start location is half player height, End location is current foot location
-	FVector Start = FVector(Foot.X, Foot.Y, Foot.Z + (this->BodyComponent->PlayerHeight / 2));
+	// Establish trace starting point
+	FVector Start = FVector(Foot.X, Foot.Y, Foot.Z + 60);
 
 	// Trace
 	FHitResult HitResult; // Establish Hit Result
@@ -79,23 +89,28 @@ void UIKCharacterAnimInstance::TraceFoot(FVector Foot, FVector* ResultLocation,
 	// Check for hit
 	if (HitResult.bBlockingHit)
 	{
-		const FVector ImpactPoint = HitResult.ImpactPoint;
+		const FVector ImpactLocation = HitResult.Location;
 		const FVector ImpactNormal = HitResult.ImpactNormal;
 
-		if (ImpactPoint.Z > Foot.Z)
+		if (ImpactLocation.Z > Foot.Z)
 		{
-			// Set new location
-			*ResultLocation = HitResult.ImpactPoint;
-
-			// Set effector
-			*Effector = UKismetMathLibrary::Abs(ResultLocation->Z - Foot.Z);
+			// Create additive vector for Z position
+			*ResultLocation = FVector(UKismetMathLibrary::Abs(ImpactLocation.Z - Foot.Z), 0, 0);
 
 			// Calculate and set new rotation
-			(*ResultRotation).Roll = UKismetMathLibrary::Atan2(ImpactNormal.Y, ImpactNormal.Z);
-			(*ResultRotation).Pitch = UKismetMathLibrary::Atan2(ImpactNormal.X, ImpactNormal.Z);
-			(*ResultRotation).Yaw = 0;
+			ResultRotation->Roll = UKismetMathLibrary::Atan2(ImpactNormal.Y, ImpactNormal.Z);
+			ResultRotation->Pitch = UKismetMathLibrary::Atan2(ImpactNormal.X, ImpactNormal.Z);
+			ResultRotation->Yaw = 0;
 		}
-
+	}
+	else
+	{
+		ResultLocation->X = 0;
+		ResultLocation->Y = 0;
+		ResultLocation->Z = 0;
+		ResultRotation->Roll = 0;
+		ResultRotation->Pitch = 0;
+		ResultRotation->Yaw = 0;
 	}
 }
 
@@ -122,8 +137,14 @@ void UIKCharacterAnimInstance::UpdateHandValues()
 	FVector RightSocket = OwnerComp->GetSocketLocation("hand_rSocket");
 
 	// Hand locations are controller locations + corrective offset defined by socket difference
-	ArmIKValues.LeftHandLocation = this->BodyComponent->LeftController->GetActorLocation() + (LeftSocket - LeftHand);
-	ArmIKValues.RightHandLocation = this->BodyComponent->RightController->GetActorLocation() + (RightSocket - RightHand);
+	ArmIKValues.LeftHandLocation = this->BodyComponent->LeftController->GetComponentLocation() + (LeftSocket - LeftHand);
+	ArmIKValues.RightHandLocation = this->BodyComponent->RightController->GetComponentLocation() + (RightSocket - RightHand);
+
+	// Hand Rotations are controller rotations
+	ArmIKValues.LeftHandRotation = this->BodyComponent->LeftController->GetComponentRotation();
+	ArmIKValues.RightHandRotation = this->BodyComponent->RightController->GetComponentRotation();
+
+	UE_LOG(LogIKBodyAnimation, Warning, TEXT("RHandLoc: %f, %f"), ArmIKValues.LeftHandLocation.X, ArmIKValues.LeftHandLocation.Y)
 }
 
 void UIKCharacterAnimInstance::UpdateMovementValues(float DeltaSeconds)
