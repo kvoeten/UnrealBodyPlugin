@@ -61,8 +61,8 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 
 	// Calculate the XY distance moved
 	float DistanceMoved = FVector::Distance(
-		FVector(CameraCurrentPosition.GetLocation().X, CameraCurrentPosition.GetLocation().X, 0),
-		FVector(LastCameraPosition.GetLocation().X, LastCameraPosition.GetLocation().X, 0)
+		FVector(CameraCurrentPosition.GetLocation().X, CameraCurrentPosition.GetLocation().Y, 0),
+		FVector(LastCameraPosition.GetLocation().X, LastCameraPosition.GetLocation().Y, 0)
 	);
 
 	// Calculate Yaw difference

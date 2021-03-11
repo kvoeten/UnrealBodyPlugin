@@ -119,7 +119,7 @@ void UIKCharacterAnimInstance::TraceFoot(FVector Foot, FVector* ResultLocation,
 
 void UIKCharacterAnimInstance::UpdateHeadValues()
 {
-	//Simply set head values to match camera at all times.
+	// Simply set head values to match camera at all times.
 	HeadIKValues.HeadRotation = this->BodyComponent->Camera->GetComponentRotation();
 	HeadIKValues.HeadLocation = this->BodyComponent->Camera->GetComponentLocation();
 

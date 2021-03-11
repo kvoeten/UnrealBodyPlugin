@@ -33,11 +33,11 @@ public:
 		UCameraComponent* Camera = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
-		float MovementThreshold = 15.0f 
+		float MovementThreshold = 60.0f 
 		UMETA(Tooltip = "Amount of units a player's head has to move to consider it a step instead of head movement.");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
-		float RotationThreshold = 15.0f 
+		float RotationThreshold = 25.0f 
 		UMETA(Tooltip = "Amount of degrees player's head has to turn to consider it more than just head movement.");
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
