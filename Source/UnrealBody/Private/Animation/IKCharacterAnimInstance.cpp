@@ -135,23 +135,23 @@ void UIKCharacterAnimInstance::UpdateHandValues()
 	const FTransform RightHandOffset = OwnerComp->GetSocketTransform("hand_rSocket", ERelativeTransformSpace::RTS_ParentBoneSpace);
 
 	// Get controller transform
-	const FTransform LeftTransform = this->BodyComponent->LeftController->GetComponentTransform();
-	const FTransform RightTransform = this->BodyComponent->RightController->GetComponentTransform();
+	ArmIKValues.LeftTargetTransform = this->BodyComponent->LeftController->GetComponentTransform();
+	ArmIKValues.RightTargetTransform = this->BodyComponent->RightController->GetComponentTransform();
 
 	// Calculate hand bone location/rotation by controler transform and bone offset
-	ArmIKValues.LeftHandLocation = LeftTransform.GetLocation()
-		+ (LeftTransform.GetRotation().GetForwardVector() * LeftHandOffset.GetLocation().X)
-		+ (LeftTransform.GetRotation().GetRightVector() * LeftHandOffset.GetLocation().Y)
-		+ (LeftTransform.GetRotation().GetUpVector() * LeftHandOffset.GetLocation().Z);
+	ArmIKValues.LeftHandLocation = ArmIKValues.LeftTargetTransform.GetLocation()
+		+ (ArmIKValues.LeftTargetTransform.GetRotation().GetForwardVector() * LeftHandOffset.GetLocation().X)
+		+ (ArmIKValues.LeftTargetTransform.GetRotation().GetRightVector() * LeftHandOffset.GetLocation().Y)
+		+ (ArmIKValues.LeftTargetTransform.GetRotation().GetUpVector() * LeftHandOffset.GetLocation().Z);
 
-	ArmIKValues.RightHandLocation = RightTransform.GetLocation()
-		+ (RightTransform.GetRotation().GetForwardVector() * RightHandOffset.GetLocation().X)
-		+ (RightTransform.GetRotation().GetRightVector() * RightHandOffset.GetLocation().Y)
-		+ (RightTransform.GetRotation().GetUpVector() * RightHandOffset.GetLocation().Z);
+	ArmIKValues.RightHandLocation = ArmIKValues.RightTargetTransform.GetLocation()
+		+ (ArmIKValues.RightTargetTransform.GetRotation().GetForwardVector() * RightHandOffset.GetLocation().X)
+		+ (ArmIKValues.RightTargetTransform.GetRotation().GetRightVector() * RightHandOffset.GetLocation().Y)
+		+ (ArmIKValues.RightTargetTransform.GetRotation().GetUpVector() * RightHandOffset.GetLocation().Z);
 
 	// Hand Rotations are controller rotations + any offset
-	ArmIKValues.LeftHandRotation = LeftTransform.GetRotation().Rotator() + LeftHandOffset.GetRotation().Rotator();
-	ArmIKValues.RightHandRotation = RightTransform.GetRotation().Rotator() + LeftHandOffset.GetRotation().Rotator();
+	ArmIKValues.LeftHandRotation = ArmIKValues.LeftTargetTransform.GetRotation().Rotator() + LeftHandOffset.GetRotation().Rotator();
+	ArmIKValues.RightHandRotation = ArmIKValues.RightTargetTransform.GetRotation().Rotator() + LeftHandOffset.GetRotation().Rotator();
 }
 
 void UIKCharacterAnimInstance::UpdateMovementValues(float DeltaSeconds)

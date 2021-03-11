@@ -53,6 +53,12 @@ struct FAnimGraphArmIK
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 		FRotator RightHandRotation = FRotator();
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+		FTransform LeftTargetTransform = FTransform();
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+		FTransform RightTargetTransform = FTransform();
 };
 
 UENUM(BlueprintType)
