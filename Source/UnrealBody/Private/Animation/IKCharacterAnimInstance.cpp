@@ -79,12 +79,14 @@ void UIKCharacterAnimInstance::UpdateFootIK()
 void UIKCharacterAnimInstance::TraceFoot(FVector Foot, FVector* ResultLocation, 
 	FRotator* ResultRotation, UWorld* World, FCollisionQueryParams* Params)
 {
-	// Establish trace starting point
-	FVector Start = FVector(Foot.X, Foot.Y, Foot.Z + 60);
+	// Establish trace start & end point
+	const float ZRoot = GetOwningComponent()->GetComponentLocation().Z;
+	const FVector Start = FVector(Foot.X, Foot.Y, ZRoot + 60);
+	const FVector End = FVector(Foot.X, Foot.Y, ZRoot);
 
 	// Trace
 	FHitResult HitResult; // Establish Hit Result
-	World->LineTraceSingleByChannel(HitResult, Start, Foot, ECC_Visibility, *Params);
+	World->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, *Params);
 
 	// Check for hit
 	if (HitResult.bBlockingHit)
@@ -92,26 +94,27 @@ void UIKCharacterAnimInstance::TraceFoot(FVector Foot, FVector* ResultLocation,
 		const FVector ImpactLocation = HitResult.Location;
 		const FVector ImpactNormal = HitResult.ImpactNormal;
 
-		if (ImpactLocation.Z > Foot.Z)
+		if (ImpactLocation.Z > ZRoot)
 		{
 			// Create additive vector for Z position
-			*ResultLocation = FVector(UKismetMathLibrary::Abs(ImpactLocation.Z - Foot.Z), 0, 0);
+			ResultLocation->X = UKismetMathLibrary::Abs(ImpactLocation.Z - ZRoot);
 
 			// Calculate and set new rotation
 			ResultRotation->Roll = UKismetMathLibrary::Atan2(ImpactNormal.Y, ImpactNormal.Z);
 			ResultRotation->Pitch = UKismetMathLibrary::Atan2(ImpactNormal.X, ImpactNormal.Z);
-			ResultRotation->Yaw = 0;
+			
+			// Return to confirm settings
+			return;
 		}
+
+		// Maintain the settings from the previous tick
+		return;
 	}
-	else
-	{
-		ResultLocation->X = 0;
-		ResultLocation->Y = 0;
-		ResultLocation->Z = 0;
-		ResultRotation->Roll = 0;
-		ResultRotation->Pitch = 0;
-		ResultRotation->Yaw = 0;
-	}
+
+	// Set defaults if no trace success
+	ResultLocation->X = 0;
+	ResultRotation->Roll = 0;
+	ResultRotation->Pitch = 0;
 }
 
 void UIKCharacterAnimInstance::UpdateHeadValues()
@@ -143,8 +146,6 @@ void UIKCharacterAnimInstance::UpdateHandValues()
 	// Hand Rotations are controller rotations
 	ArmIKValues.LeftHandRotation = this->BodyComponent->LeftController->GetComponentRotation();
 	ArmIKValues.RightHandRotation = this->BodyComponent->RightController->GetComponentRotation();
-
-	UE_LOG(LogIKBodyAnimation, Warning, TEXT("RHandLoc: %f, %f"), ArmIKValues.LeftHandLocation.X, ArmIKValues.LeftHandLocation.Y)
 }
 
 void UIKCharacterAnimInstance::UpdateMovementValues(float DeltaSeconds)
