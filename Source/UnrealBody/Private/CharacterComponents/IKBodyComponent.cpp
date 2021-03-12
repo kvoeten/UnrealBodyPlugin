@@ -295,12 +295,10 @@ void UIKBodyComponent::TickFingerIK(float DeltaTime)
 			
 			else if (Capsule != nullptr && GripTarget != nullptr)
 			{
-				UE_LOG(LogIKBodyComponent, Log, TEXT("Monitoring collision"));
 				// Check if capsule is colliding with target actor since being moved previous tick
 				TArray <FOverlapInfo> OverlapInfo;
 				if (Capsule->GetOverlapsWithActor(GripTarget, OverlapInfo))
 				{
-					UE_LOG(LogIKBodyComponent, Log, TEXT("Collision was found"));
 					*this->FingerStates.StateMap.Find(Bone) = true;
 					continue; // Skip to next bone
 				}
