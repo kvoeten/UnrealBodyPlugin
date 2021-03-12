@@ -35,38 +35,6 @@ void UIKBodyComponent::BeginPlay()
 		// Set current position to match target
 		this->BodyCurrentLocation = this->BodyTargetLocation;
 		this->BodyCurrentRotation = this->BodyTargetRotation; 
-
-		// Init hitbox map with nullptrs
-		this->FingerHitboxes.Add(EFingerBone::index_01_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::index_02_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::index_03_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::middle_01_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::middle_02_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::middle_03_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::ring_01_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::ring_02_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::ring_03_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::pinky_01_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::pinky_02_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::pinky_03_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::thumb_01_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::thumb_02_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::thumb_03_l, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::index_01_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::index_02_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::index_03_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::middle_01_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::middle_02_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::middle_03_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::ring_01_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::ring_02_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::ring_03_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::pinky_01_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::pinky_02_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::pinky_03_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::thumb_01_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::thumb_02_r, nullptr);
-		this->FingerHitboxes.Add(EFingerBone::thumb_03_r, nullptr);
 				
 		UE_LOG(LogIKBodyComponent, Log, TEXT("Succesfully initialized with body and camera!"));
 	}
@@ -327,10 +295,12 @@ void UIKBodyComponent::TickFingerIK(float DeltaTime)
 			
 			else if (Capsule != nullptr && GripTarget != nullptr)
 			{
+				UE_LOG(LogIKBodyComponent, Log, TEXT("Monitoring collision"));
 				// Check if capsule is colliding with target actor since being moved previous tick
 				TArray <FOverlapInfo> OverlapInfo;
 				if (Capsule->GetOverlapsWithActor(GripTarget, OverlapInfo))
 				{
+					UE_LOG(LogIKBodyComponent, Log, TEXT("Collision was found"));
 					*this->FingerStates.StateMap.Find(Bone) = true;
 					continue; // Skip to next bone
 				}
@@ -375,34 +345,35 @@ void UIKBodyComponent::SetAllHitBoxes(
 	UCapsuleComponent* thumb_03_r
 )
 {
-	this->FingerHitboxes.Emplace(EFingerBone::index_01_l, index_01_l);
-	this->FingerHitboxes.Emplace(EFingerBone::index_02_l, index_02_l);
-	this->FingerHitboxes.Emplace(EFingerBone::index_03_l, index_03_l);
-	this->FingerHitboxes.Emplace(EFingerBone::middle_01_l, middle_01_l);
-	this->FingerHitboxes.Emplace(EFingerBone::middle_02_l, middle_02_l);
-	this->FingerHitboxes.Emplace(EFingerBone::middle_03_l, middle_03_l);
-	this->FingerHitboxes.Emplace(EFingerBone::ring_01_l, ring_01_l);
-	this->FingerHitboxes.Emplace(EFingerBone::ring_02_l, ring_02_l);
-	this->FingerHitboxes.Emplace(EFingerBone::ring_03_l, ring_03_l);
-	this->FingerHitboxes.Emplace(EFingerBone::pinky_01_l, pinky_01_l);
-	this->FingerHitboxes.Emplace(EFingerBone::pinky_02_l, pinky_02_l);
-	this->FingerHitboxes.Emplace(EFingerBone::pinky_03_l, pinky_03_l);
-	this->FingerHitboxes.Emplace(EFingerBone::thumb_01_l, thumb_01_l);
-	this->FingerHitboxes.Emplace(EFingerBone::thumb_02_l, thumb_02_l);
-	this->FingerHitboxes.Emplace(EFingerBone::thumb_03_l, thumb_03_l);
-	this->FingerHitboxes.Emplace(EFingerBone::index_01_r, index_01_r);
-	this->FingerHitboxes.Emplace(EFingerBone::index_02_r, index_02_r);
-	this->FingerHitboxes.Emplace(EFingerBone::index_03_r, index_03_r);
-	this->FingerHitboxes.Emplace(EFingerBone::middle_01_r, middle_01_r);
-	this->FingerHitboxes.Emplace(EFingerBone::middle_02_r, middle_02_r);
-	this->FingerHitboxes.Emplace(EFingerBone::middle_03_r, middle_03_r);
-	this->FingerHitboxes.Emplace(EFingerBone::ring_01_r, ring_01_r);
-	this->FingerHitboxes.Emplace(EFingerBone::ring_02_r, ring_02_r);
-	this->FingerHitboxes.Emplace(EFingerBone::ring_03_r, ring_03_r);
-	this->FingerHitboxes.Emplace(EFingerBone::pinky_01_r, pinky_01_r);
-	this->FingerHitboxes.Emplace(EFingerBone::pinky_02_r, pinky_02_r);
-	this->FingerHitboxes.Emplace(EFingerBone::pinky_03_r, pinky_03_r);
-	this->FingerHitboxes.Emplace(EFingerBone::thumb_01_r, thumb_01_r);
-	this->FingerHitboxes.Emplace(EFingerBone::thumb_02_r, thumb_02_r);
-	this->FingerHitboxes.Emplace(EFingerBone::thumb_03_r, thumb_03_r);
+	this->FingerHitboxes.Empty();
+	this->FingerHitboxes.Add(EFingerBone::index_01_l, index_01_l);
+	this->FingerHitboxes.Add(EFingerBone::index_02_l, index_02_l);
+	this->FingerHitboxes.Add(EFingerBone::index_03_l, index_03_l);
+	this->FingerHitboxes.Add(EFingerBone::middle_01_l, middle_01_l);
+	this->FingerHitboxes.Add(EFingerBone::middle_02_l, middle_02_l);
+	this->FingerHitboxes.Add(EFingerBone::middle_03_l, middle_03_l);
+	this->FingerHitboxes.Add(EFingerBone::ring_01_l, ring_01_l);
+	this->FingerHitboxes.Add(EFingerBone::ring_02_l, ring_02_l);
+	this->FingerHitboxes.Add(EFingerBone::ring_03_l, ring_03_l);
+	this->FingerHitboxes.Add(EFingerBone::pinky_01_l, pinky_01_l);
+	this->FingerHitboxes.Add(EFingerBone::pinky_02_l, pinky_02_l);
+	this->FingerHitboxes.Add(EFingerBone::pinky_03_l, pinky_03_l);
+	this->FingerHitboxes.Add(EFingerBone::thumb_01_l, thumb_01_l);
+	this->FingerHitboxes.Add(EFingerBone::thumb_02_l, thumb_02_l);
+	this->FingerHitboxes.Add(EFingerBone::thumb_03_l, thumb_03_l);
+	this->FingerHitboxes.Add(EFingerBone::index_01_r, index_01_r);
+	this->FingerHitboxes.Add(EFingerBone::index_02_r, index_02_r);
+	this->FingerHitboxes.Add(EFingerBone::index_03_r, index_03_r);
+	this->FingerHitboxes.Add(EFingerBone::middle_01_r, middle_01_r);
+	this->FingerHitboxes.Add(EFingerBone::middle_02_r, middle_02_r);
+	this->FingerHitboxes.Add(EFingerBone::middle_03_r, middle_03_r);
+	this->FingerHitboxes.Add(EFingerBone::ring_01_r, ring_01_r);
+	this->FingerHitboxes.Add(EFingerBone::ring_02_r, ring_02_r);
+	this->FingerHitboxes.Add(EFingerBone::ring_03_r, ring_03_r);
+	this->FingerHitboxes.Add(EFingerBone::pinky_01_r, pinky_01_r);
+	this->FingerHitboxes.Add(EFingerBone::pinky_02_r, pinky_02_r);
+	this->FingerHitboxes.Add(EFingerBone::pinky_03_r, pinky_03_r);
+	this->FingerHitboxes.Add(EFingerBone::thumb_01_r, thumb_01_r);
+	this->FingerHitboxes.Add(EFingerBone::thumb_02_r, thumb_02_r);
+	this->FingerHitboxes.Add(EFingerBone::thumb_03_r, thumb_03_r);
 }

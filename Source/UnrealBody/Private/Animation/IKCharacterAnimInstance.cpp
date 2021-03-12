@@ -168,6 +168,6 @@ void UIKCharacterAnimInstance::UpdateFingerIKValues()
 	{
 		const EFingerBone Bone = pair.Key;
 		const float Alpha = pair.Value;
-		this->FingerIKValues.BlendMap.Emplace(Bone, Alpha);
+		*this->FingerIKValues.BlendMap.Find(Bone) = Alpha;
 	}
 }
