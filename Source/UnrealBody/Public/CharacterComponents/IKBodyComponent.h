@@ -73,7 +73,41 @@ public:
 		void EndTeleport() { this->IsTeleporting = false; };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody | Fingers")
-		TMap<EFingerBone, UCapsuleComponent*> FingerHitboxes;	
+		TMap<EFingerBone, UCapsuleComponent*> FingerHitboxes;
+
+	UFUNCTION(BlueprintCallable, Category = "IKBody | Fingers")
+		void SetAllHitBoxes(
+			UCapsuleComponent* index_01_l,
+			UCapsuleComponent* index_02_l,
+			UCapsuleComponent* index_03_l,
+			UCapsuleComponent* middle_01_l,
+			UCapsuleComponent* middle_02_l,
+			UCapsuleComponent* middle_03_l,
+			UCapsuleComponent* ring_01_l,
+			UCapsuleComponent* ring_02_l,
+			UCapsuleComponent* ring_03_l,
+			UCapsuleComponent* pinky_01_l,
+			UCapsuleComponent* pinky_02_l,
+			UCapsuleComponent* pinky_03_l,
+			UCapsuleComponent* thumb_01_l,
+			UCapsuleComponent* thumb_02_l,
+			UCapsuleComponent* thumb_03_l,
+			UCapsuleComponent* index_01_r,
+			UCapsuleComponent* index_02_r,
+			UCapsuleComponent* index_03_r,
+			UCapsuleComponent* middle_01_r,
+			UCapsuleComponent* middle_02_r,
+			UCapsuleComponent* middle_03_r,
+			UCapsuleComponent* ring_01_r,
+			UCapsuleComponent* ring_02_r,
+			UCapsuleComponent* ring_03_r,
+			UCapsuleComponent* pinky_01_r,
+			UCapsuleComponent* pinky_02_r,
+			UCapsuleComponent* pinky_03_r,
+			UCapsuleComponent* thumb_01_r,
+			UCapsuleComponent* thumb_02_r,
+			UCapsuleComponent* thumb_03_r
+		);
 
 	FAnimGraphFingerIK FingerIKValues = FAnimGraphFingerIK();
 

@@ -288,7 +288,7 @@ void UIKBodyComponent::TickFingerIK(float DeltaTime)
 
 			if (*CurrentAlpha == TargetAlpha)
 			{
-				// Target is reached if alpha is already 1
+				// Target is already reached since moving previous tick
 				this->FingerStates.StateMap.Emplace(Bone, true);
 				continue; // Skip to next bone
 			}
@@ -307,4 +307,69 @@ void UIKBodyComponent::TickFingerIK(float DeltaTime)
 			*CurrentAlpha = UKismetMathLibrary::FInterpTo(*CurrentAlpha, TargetAlpha, DeltaTime, 4.0f);
 		}
 	}
+}
+
+void UIKBodyComponent::SetAllHitBoxes(
+	UCapsuleComponent* index_01_l,
+	UCapsuleComponent* index_02_l,
+	UCapsuleComponent* index_03_l,
+	UCapsuleComponent* middle_01_l,
+	UCapsuleComponent* middle_02_l,
+	UCapsuleComponent* middle_03_l,
+	UCapsuleComponent* ring_01_l,
+	UCapsuleComponent* ring_02_l,
+	UCapsuleComponent* ring_03_l,
+	UCapsuleComponent* pinky_01_l,
+	UCapsuleComponent* pinky_02_l,
+	UCapsuleComponent* pinky_03_l,
+	UCapsuleComponent* thumb_01_l,
+	UCapsuleComponent* thumb_02_l,
+	UCapsuleComponent* thumb_03_l,
+	UCapsuleComponent* index_01_r,
+	UCapsuleComponent* index_02_r,
+	UCapsuleComponent* index_03_r,
+	UCapsuleComponent* middle_01_r,
+	UCapsuleComponent* middle_02_r,
+	UCapsuleComponent* middle_03_r,
+	UCapsuleComponent* ring_01_r,
+	UCapsuleComponent* ring_02_r,
+	UCapsuleComponent* ring_03_r,
+	UCapsuleComponent* pinky_01_r,
+	UCapsuleComponent* pinky_02_r,
+	UCapsuleComponent* pinky_03_r,
+	UCapsuleComponent* thumb_01_r,
+	UCapsuleComponent* thumb_02_r,
+	UCapsuleComponent* thumb_03_r
+)
+{
+	this->FingerHitboxes.Add(EFingerBone::index_01_l, index_01_l);
+	this->FingerHitboxes.Add(EFingerBone::index_02_l, index_02_l);
+	this->FingerHitboxes.Add(EFingerBone::index_03_l, index_03_l);
+	this->FingerHitboxes.Add(EFingerBone::middle_01_l, middle_01_l);
+	this->FingerHitboxes.Add(EFingerBone::middle_02_l, middle_02_l);
+	this->FingerHitboxes.Add(EFingerBone::middle_03_l, middle_03_l);
+	this->FingerHitboxes.Add(EFingerBone::ring_01_l, ring_01_l);
+	this->FingerHitboxes.Add(EFingerBone::ring_02_l, ring_02_l);
+	this->FingerHitboxes.Add(EFingerBone::ring_03_l, ring_03_l);
+	this->FingerHitboxes.Add(EFingerBone::pinky_01_l, pinky_01_l);
+	this->FingerHitboxes.Add(EFingerBone::pinky_02_l, pinky_02_l);
+	this->FingerHitboxes.Add(EFingerBone::pinky_03_l, pinky_03_l);
+	this->FingerHitboxes.Add(EFingerBone::thumb_01_l, thumb_01_l);
+	this->FingerHitboxes.Add(EFingerBone::thumb_02_l, thumb_02_l);
+	this->FingerHitboxes.Add(EFingerBone::thumb_03_l, thumb_03_l);
+	this->FingerHitboxes.Add(EFingerBone::index_01_r, index_01_r);
+	this->FingerHitboxes.Add(EFingerBone::index_02_r, index_02_r);
+	this->FingerHitboxes.Add(EFingerBone::index_03_r, index_03_r);
+	this->FingerHitboxes.Add(EFingerBone::middle_01_r, middle_01_r);
+	this->FingerHitboxes.Add(EFingerBone::middle_02_r, middle_02_r);
+	this->FingerHitboxes.Add(EFingerBone::middle_03_r, middle_03_r);
+	this->FingerHitboxes.Add(EFingerBone::ring_01_r, ring_01_r);
+	this->FingerHitboxes.Add(EFingerBone::ring_02_r, ring_02_r);
+	this->FingerHitboxes.Add(EFingerBone::ring_03_r, ring_03_r);
+	this->FingerHitboxes.Add(EFingerBone::pinky_01_r, pinky_01_r);
+	this->FingerHitboxes.Add(EFingerBone::pinky_02_r, pinky_02_r);
+	this->FingerHitboxes.Add(EFingerBone::pinky_03_r, pinky_03_r);
+	this->FingerHitboxes.Add(EFingerBone::thumb_01_r, thumb_01_r);
+	this->FingerHitboxes.Add(EFingerBone::thumb_02_r, thumb_02_r);
+	this->FingerHitboxes.Add(EFingerBone::thumb_03_r, thumb_03_r);
 }
