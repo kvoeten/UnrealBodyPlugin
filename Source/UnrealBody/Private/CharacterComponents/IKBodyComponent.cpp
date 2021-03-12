@@ -34,8 +34,8 @@ void UIKBodyComponent::BeginPlay()
 
 		// Set current position to match target
 		this->BodyCurrentLocation = this->BodyTargetLocation;
-		this->BodyCurrentRotation = this->BodyTargetRotation;
-		
+		this->BodyCurrentRotation = this->BodyTargetRotation; 
+				
 		UE_LOG(LogIKBodyComponent, Log, TEXT("Succesfully initialized with body and camera!"));
 	}
 	else
@@ -52,6 +52,7 @@ void UIKBodyComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	if (Body != nullptr && Camera != nullptr)
 	{
 		this->TickBodyMovement(DeltaTime);
+		this->TickFingerIK(DeltaTime);
 	}
 }
 
@@ -154,4 +155,156 @@ float UIKBodyComponent::GetMovementDirection(FTransform* First, FTransform* Seco
 	}
 
 	return Rotation;
+}
+
+// Helper function that resets the finger states of the given hand.
+void UIKBodyComponent::ResetHandFingers(ECharacterIKHand Hand)
+{
+	switch (Hand)
+	{
+	case ECharacterIKHand::Left:
+		FingerStates.StateMap.Emplace(EFingerBone::index_01_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::index_02_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::index_03_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::middle_01_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::middle_02_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::middle_03_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::ring_01_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::ring_02_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::ring_03_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::pinky_01_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::pinky_02_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::pinky_03_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::thumb_01_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::thumb_02_l, false);
+		FingerStates.StateMap.Emplace(EFingerBone::thumb_03_l, false);
+		break;
+	case ECharacterIKHand::Right:
+		FingerStates.StateMap.Emplace(EFingerBone::index_01_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::index_02_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::index_03_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::middle_01_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::middle_02_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::middle_03_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::ring_01_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::ring_02_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::ring_03_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::pinky_01_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::pinky_02_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::pinky_03_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::thumb_01_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::thumb_02_r, false);
+		FingerStates.StateMap.Emplace(EFingerBone::thumb_03_r, false);
+		break;
+	}
+}
+
+void UIKBodyComponent::StartFingerIK(AActor* Target, ECharacterIKHand Hand)
+{
+	if (Target == nullptr)
+		return;
+
+	switch (Hand)
+	{
+	case ECharacterIKHand::Left:
+		this->LeftGrip = Target;
+		this->ResetHandFingers(Hand);
+		break;
+	case ECharacterIKHand::Right:
+		this->RightGrip = Target;
+		this->ResetHandFingers(Hand);
+		break;
+	}
+}
+
+void UIKBodyComponent::StopFingerIK(ECharacterIKHand Hand)
+{
+	switch (Hand)
+	{
+	case ECharacterIKHand::Left:
+		this->LeftGrip = nullptr;
+		this->ResetHandFingers(Hand);
+		break;
+	case ECharacterIKHand::Right:
+		this->RightGrip = nullptr;
+		this->ResetHandFingers(Hand);
+		break;
+	}
+}
+
+void UIKBodyComponent::TickFingerIK(float DeltaTime)
+{
+	for (const TPair<EFingerBone, bool>& pair : FingerStates.StateMap)
+	{
+		const EFingerBone Bone = pair.Key;
+		const bool Finished = pair.Value;
+
+		if (!Finished)
+		{
+			AActor* GripTarget = nullptr;
+			switch (Bone)
+			{
+			case EFingerBone::index_01_l:
+			case EFingerBone::index_02_l:
+			case EFingerBone::index_03_l:
+			case EFingerBone::middle_01_l:
+			case EFingerBone::middle_02_l:
+			case EFingerBone::middle_03_l:
+			case EFingerBone::ring_01_l:
+			case EFingerBone::ring_02_l:
+			case EFingerBone::ring_03_l:
+			case EFingerBone::pinky_01_l:
+			case EFingerBone::pinky_02_l:
+			case EFingerBone::pinky_03_l:
+			case EFingerBone::thumb_01_l:
+			case EFingerBone::thumb_02_l:
+			case EFingerBone::thumb_03_l:
+				GripTarget = LeftGrip;
+				break;
+			case EFingerBone::index_01_r:
+			case EFingerBone::index_02_r:
+			case EFingerBone::index_03_r:
+			case EFingerBone::middle_01_r:
+			case EFingerBone::middle_02_r:
+			case EFingerBone::middle_03_r:
+			case EFingerBone::ring_01_r:
+			case EFingerBone::ring_02_r:
+			case EFingerBone::ring_03_r:
+			case EFingerBone::pinky_01_r:
+			case EFingerBone::pinky_02_r:
+			case EFingerBone::pinky_03_r:
+			case EFingerBone::thumb_01_r:
+			case EFingerBone::thumb_02_r:
+			case EFingerBone::thumb_03_r:
+				GripTarget = RightGrip;
+			}
+
+			float TargetAlpha = GripTarget == nullptr ? 0 : 1.0f;
+			float* CurrentAlpha = this->FingerIKValues.BlendMap.Find(Bone);
+
+			// Check if ptr to capsule ptr is valid, and then get capsule ptr
+			UCapsuleComponent** CapsulePtrPtr = this->FingerHitboxes.Find(Bone);
+			UCapsuleComponent* Capsule = CapsulePtrPtr == nullptr ? nullptr : *CapsulePtrPtr;
+
+			if (*CurrentAlpha == TargetAlpha)
+			{
+				// Target is reached if alpha is already 1
+				this->FingerStates.StateMap.Emplace(Bone, true);
+				continue; // Skip to next bone
+			}
+			else if (Capsule != nullptr)
+			{
+				// Check if capsule is colliding with target actor since being moved previous tick
+				TArray <FOverlapInfo> OverlapInfo;
+				if (Capsule->GetOverlapsWithActor(GripTarget, OverlapInfo))
+				{
+					this->FingerStates.StateMap.Emplace(Bone, true);
+					continue; // Skip to next bone
+				}
+			}
+
+			// Finterp to target
+			*CurrentAlpha = UKismetMathLibrary::FInterpTo(*CurrentAlpha, TargetAlpha, DeltaTime, 4.0f);
+		}
+	}
 }

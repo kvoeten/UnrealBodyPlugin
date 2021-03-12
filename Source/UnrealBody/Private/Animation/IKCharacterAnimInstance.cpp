@@ -41,6 +41,7 @@ void UIKCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		UpdateHandValues();
 		UpdateHeadValues();
 		UpdateMovementValues(DeltaSeconds);
+		UpdateFingerIKValues();
 	}
 	else UE_LOG(LogIKBodyAnimation, Warning, TEXT("Pawn owner has no IKBodyComponent"));
 
@@ -157,4 +158,16 @@ void UIKCharacterAnimInstance::UpdateHandValues()
 void UIKCharacterAnimInstance::UpdateMovementValues(float DeltaSeconds)
 {
 	
+}
+
+void UIKCharacterAnimInstance::UpdateFingerIKValues()
+{
+	// This is probably kinda inefficient, gotta find a way to directly access the FingerIKBlendmap with a pointer to replace it's value. 
+	// Direct ref to anim? (cross dep tho)
+	for (const TPair<EFingerBone, float>& pair : this->BodyComponent->FingerIKValues.BlendMap)
+	{
+		const EFingerBone Bone = pair.Key;
+		const float Alpha = pair.Value;
+		this->FingerIKValues.BlendMap.Emplace(Bone, Alpha);
+	}
 }

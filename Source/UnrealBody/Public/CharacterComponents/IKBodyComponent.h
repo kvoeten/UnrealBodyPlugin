@@ -6,6 +6,9 @@
 #include "Math/UnrealMathUtility.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ActorComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Library/CharacterStateLibrary.h"
+#include "Library/AnimationStructLibrary.h"
 
 #include "IKBodyComponent.generated.h"
 
@@ -55,10 +58,24 @@ public:
 		void TickBodyMovement(float DeltaTime);
 
 	UFUNCTION(BlueprintCallable, Category = "IKBody")
+		void TickFingerIK(float DeltaTime);
+
+	UFUNCTION(BlueprintCallable, Category = "IKBody")
+		void StartFingerIK(AActor* Target, ECharacterIKHand Hand);
+
+	UFUNCTION(BlueprintCallable, Category = "IKBody")
+		void StopFingerIK(ECharacterIKHand Hand);
+
+	UFUNCTION(BlueprintCallable, Category = "IKBody")
 		void BeginTeleport() { this->IsTeleporting = true; };
 
 	UFUNCTION(BlueprintCallable, Category = "IKBody")
 		void EndTeleport() { this->IsTeleporting = false; };
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody | Fingers")
+		TMap<EFingerBone, UCapsuleComponent*> FingerHitboxes;	
+
+	FAnimGraphFingerIK FingerIKValues = FAnimGraphFingerIK();
 
 private:
 	FTransform LastCameraPosition = FTransform();
@@ -70,6 +87,13 @@ private:
 	// Body Rotation (Yaw only!)
 	FRotator BodyTargetRotation = FRotator();
 	FRotator BodyCurrentRotation = FRotator();
+
+	// Finger States
+	FFingerStateMap FingerStates = FFingerStateMap();
+	
+	// Grip States
+	AActor* LeftGrip = nullptr;
+	AActor* RightGrip = nullptr;
 
 	// Movement variables
 	float MovementDirection = 0.0f;
@@ -84,6 +108,9 @@ private:
 
 	// Body Offset Util
 	void SetBodyTargetPosition(FTransform* CameraTransform);
+
+	// Finger reset
+	void ResetHandFingers(ECharacterIKHand Hand);
 
 protected:
 	// Called when the game starts

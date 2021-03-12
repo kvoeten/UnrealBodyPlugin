@@ -140,3 +140,48 @@ struct FAnimGraphFingerIK
 		BlendMap.Add(EFingerBone::thumb_03_r, 0.0f);
 	}
 };
+
+/** Anim Graph - Finger IK */
+USTRUCT(BlueprintType)
+struct FFingerStateMap
+{
+	GENERATED_BODY()
+
+		UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
+		TMap<EFingerBone, bool> StateMap;
+
+	FFingerStateMap()
+	{
+		// Populate the MAP on construction
+		StateMap.Add(EFingerBone::index_01_l, 0.0f);
+		StateMap.Add(EFingerBone::index_02_l, 0.0f);
+		StateMap.Add(EFingerBone::index_03_l, 0.0f);
+		StateMap.Add(EFingerBone::middle_01_l, 0.0f);
+		StateMap.Add(EFingerBone::middle_02_l, 0.0f);
+		StateMap.Add(EFingerBone::middle_03_l, 0.0f);
+		StateMap.Add(EFingerBone::ring_01_l, 0.0f);
+		StateMap.Add(EFingerBone::ring_02_l, 0.0f);
+		StateMap.Add(EFingerBone::ring_03_l, 0.0f);
+		StateMap.Add(EFingerBone::pinky_01_l, 0.0f);
+		StateMap.Add(EFingerBone::pinky_02_l, 0.0f);
+		StateMap.Add(EFingerBone::pinky_03_l, 0.0f);
+		StateMap.Add(EFingerBone::thumb_01_l, 0.0f);
+		StateMap.Add(EFingerBone::thumb_02_l, 0.0f);
+		StateMap.Add(EFingerBone::thumb_03_l, 0.0f);
+		StateMap.Add(EFingerBone::index_01_r, 0.0f);
+		StateMap.Add(EFingerBone::index_02_r, 0.0f);
+		StateMap.Add(EFingerBone::index_03_r, 0.0f);
+		StateMap.Add(EFingerBone::middle_01_r, 0.0f);
+		StateMap.Add(EFingerBone::middle_02_r, 0.0f);
+		StateMap.Add(EFingerBone::middle_03_r, 0.0f);
+		StateMap.Add(EFingerBone::ring_01_r, 0.0f);
+		StateMap.Add(EFingerBone::ring_02_r, 0.0f);
+		StateMap.Add(EFingerBone::ring_03_r, 0.0f);
+		StateMap.Add(EFingerBone::pinky_01_r, 0.0f);
+		StateMap.Add(EFingerBone::pinky_02_r, 0.0f);
+		StateMap.Add(EFingerBone::pinky_03_r, 0.0f);
+		StateMap.Add(EFingerBone::thumb_01_r, 0.0f);
+		StateMap.Add(EFingerBone::thumb_02_r, 0.0f);
+		StateMap.Add(EFingerBone::thumb_03_r, 0.0f);
+	}
+};
