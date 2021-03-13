@@ -8,7 +8,18 @@ UIKBodyComponent::UIKBodyComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.TickInterval = .01f;
-	bAutoActivate = true;
+	SetNetAddressable();
+	SetIsReplicated(true);
+}
+
+void UIKBodyComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UIKBodyComponent, MovementThreshold);
+	DOREPLIFETIME(UIKBodyComponent, RotationThreshold);
+	DOREPLIFETIME(UIKBodyComponent, BodyRotationOffset);
+	DOREPLIFETIME(UIKBodyComponent, PlayerHeight);
+	DOREPLIFETIME(UIKBodyComponent, BodyOffset);
 }
 
 void UIKBodyComponent::BeginPlay()
@@ -309,6 +320,16 @@ void UIKBodyComponent::TickFingerIK(float DeltaTime)
 		}
 	}
 }
+
+void UIKBodyComponent::UpdateMovementThreshold_Implementation(float Value) { this->MovementThreshold = Value; }
+
+void UIKBodyComponent::UpdateRotationThreshold_Implementation(float Value) { this->RotationThreshold = Value; }
+
+void UIKBodyComponent::UpdatePlayerHeight_Implementation(float Value) { this->PlayerHeight = Value; }
+
+void UIKBodyComponent::UpdateBodyOffset_Implementation(float Value) { this->BodyOffset = Value; }
+
+void UIKBodyComponent::UpdateBodyRotationOffset_Implementation(float Value) { this->BodyRotationOffset = Value; }
 
 void UIKBodyComponent::SetAllHitBoxes(
 	UCapsuleComponent* index_01_l,

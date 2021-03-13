@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Net/UnrealNetwork.h"
 #include "Math/UnrealMathUtility.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ActorComponent.h"
@@ -35,25 +36,49 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
 		UCameraComponent* Camera = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
+	/*
+		Movement Values, replicated (server changes are sent to clients)
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "IKBody")
 		float MovementThreshold = 60.0f 
 		UMETA(Tooltip = "Amount of units a player's head has to move to consider it a step instead of head movement.");
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "IKBody")
 		float RotationThreshold = 25.0f 
 		UMETA(Tooltip = "Amount of degrees player's head has to turn to consider it more than just head movement.");
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "IKBody")
 		float PlayerHeight = 180.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "IKBody")
 		float BodyOffset = -20.0f
 		UMETA(Tooltip = "Units to move the body from the camera looking direction to avoid clipping.");
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "IKBody")
 		float BodyRotationOffset = -90.0f 
 		UMETA(Tooltip = "Corrective rotation to align the body with the camera direction.");
 
+	/*
+		Replicated movement value changes, run on server
+	*/
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+		void UpdateMovementThreshold(float Value);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+		void UpdateRotationThreshold(float Value);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+		void UpdatePlayerHeight(float Value);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+		void UpdateBodyOffset(float Value);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+		void UpdateBodyRotationOffset(float Value);
+
+	/*
+		System Ticks
+	*/
 	UFUNCTION(BlueprintCallable, Category = "IKBody")
 		void TickBodyMovement(float DeltaTime);
 
@@ -72,6 +97,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "IKBody")
 		void EndTeleport() { this->IsTeleporting = false; };
 
+	/*
+		Finger IK maps
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody | Fingers")
 		TMap<EFingerBone, UCapsuleComponent*> FingerHitboxes;
 
