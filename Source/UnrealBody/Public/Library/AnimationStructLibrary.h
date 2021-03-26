@@ -74,18 +74,6 @@ struct FAnimGraphArmIK
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
-		FVector LeftHandLocation = FVector();
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
-		FRotator LeftHandRotation = FRotator();
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
-		FVector RightHandLocation = FVector();
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
-		FRotator RightHandRotation = FRotator();
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 		FTransform LeftTargetTransform = FTransform();
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
