@@ -1,3 +1,21 @@
+/*
+*   This file is part of the Unreal Body Plugin by Kaz Voeten.
+*   Copyright (C) 2021 Kaz Voeten
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "CharacterComponents/IKBodyComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -91,7 +109,7 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 
 		// Update movement speed and direction
 		this->MovementDirection = GetMovementDirection(&LastCameraPosition, &CameraCurrentPosition);
-		this->MovementSpeed = DistanceMoved / DeltaTime;
+		this->MovementSpeed = UKismetMathLibrary::FFloor((DistanceMoved / DeltaTime) / 1000);
 
 		// Save new position
 		this->LastCameraPosition = CameraCurrentPosition;
@@ -101,6 +119,7 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 	if (YawDifference > this->RotationThreshold)
 	{
 		this->BodyTargetRotation.Yaw = Camera->GetComponentRotation().Yaw + this->BodyRotationOffset;
+		this->MovementDirection = YawDifference;
 	}
 
 	// If the body hasn't reached it's target location yet we move it towards it.
@@ -113,21 +132,23 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 	else
 	{
 		// Tick towards location based on movement speed
-		FVector MovementVector = UKismetMathLibrary::GetDirectionUnitVector(this->BodyCurrentLocation, this->BodyTargetLocation) * MovementSpeed * DeltaTime;
-		this->BodyCurrentLocation = this->BodyCurrentLocation + MovementVector;
+		this->BodyCurrentLocation = UKismetMathLibrary::VInterpTo(this->BodyCurrentLocation, this->BodyTargetLocation, DeltaTime, MovementSpeed);
 		this->Body->SetWorldLocation(BodyCurrentLocation);
 	}
 
 	// If the body hasn't reached it's target rotation yet we interp towards it.
 	if (!UKismetMathLibrary::NearlyEqual_FloatFloat(BodyCurrentRotation.Yaw, BodyTargetRotation.Yaw, 9.99997f))
 	{
-		BodyCurrentRotation.Yaw = UKismetMathLibrary::FInterpTo(BodyCurrentRotation.Yaw, BodyTargetRotation.Yaw, DeltaTime, UKismetMathLibrary::Max(5.0f, MovementSpeed));
+		BodyCurrentRotation.Yaw = UKismetMathLibrary::FInterpTo(BodyCurrentRotation.Yaw, BodyTargetRotation.Yaw, DeltaTime, UKismetMathLibrary::Max(2.0f, MovementSpeed));
 		this->Body->SetWorldRotation(BodyCurrentRotation);
 	}
+	else this->MovementDirection = 0;
 
 	// Always set Z to enable seamless crouching
 	FVector BodyLocation = FVector(BodyCurrentLocation.X, BodyCurrentLocation.Y, CameraCurrentPosition.GetLocation().Z - this->PlayerHeight);
 	this->Body->SetWorldLocation(BodyLocation);
+
+	UE_LOG(LogIKBodyComponent, Warning, TEXT("MovementSpeed: %f"), this->MovementSpeed);
 }
 
 /*
@@ -141,31 +162,24 @@ void UIKBodyComponent::SetBodyTargetPosition(FTransform* CameraTransform)
 }
 
 /*
- * This function isn't fully correct, expected result is direction in degrees between -180 and 180
+ * Find the (shortest) angle in degrees between two transforms on the XY axis
+ * Huge thanks to Eprim at https://answers.unrealengine.com/ for showing a neat trick to resolve quaternion results
 */
 float UIKBodyComponent::GetMovementDirection(FTransform* First, FTransform* Second)
 {
-	float Rotation = 0;
+	float Rotation = 0.0f;
+	FVector Axis;
 
-	FVector FirstForward = UKismetMathLibrary::GetForwardVector(First->GetRotation().Rotator());
-	FVector SecondForward = UKismetMathLibrary::GetForwardVector(Second->GetRotation().Rotator());
+	// Get rotational vecotors
+	FVector FirstRotVec = First->GetRotation().Vector();
+	FVector SecondRotVec = Second->GetRotation().Vector();
 
-	if (FirstForward.Normalize() && SecondForward.Normalize())
-	{
-		// Should return 0~180
-		Rotation = UKismetMathLibrary::DegAcos(UKismetMathLibrary::Dot_VectorVector(FirstForward, SecondForward));
-		
-		// Check if it's to the front or to the back
-		FVector Difference = Second->GetLocation() - First->GetLocation();
-		if (Difference.Normalize())
-		{
-			float Dot = UKismetMathLibrary::Dot_VectorVector(Difference, FirstForward);
-			// TODO test, otherwise have to reverse cos this
-			if (Dot < 0) Rotation = -1 * Rotation;
-		}
-	}
+	// Find quat and angle
+	const auto Quaternion = FQuat::FindBetweenNormals(FirstRotVec, SecondRotVec);
+	Quaternion.ToAxisAndAngle(Axis, Rotation);
 
-	return Rotation;
+	// Convert to degrees and use axis.Z as left-right direction control to constrain angle between -180 and 180
+	return Axis.Z * FMath::RadiansToDegrees(Rotation);
 }
 
 // Helper function that resets the Finger states of the given hand.
@@ -328,8 +342,6 @@ void UIKBodyComponent::UpdateRotationThreshold_Implementation(float Value) { thi
 void UIKBodyComponent::UpdatePlayerHeight_Implementation(float Value) { this->PlayerHeight = Value; }
 
 void UIKBodyComponent::UpdateBodyOffset_Implementation(float Value) { this->BodyOffset = Value; }
-
-void UIKBodyComponent::UpdateBodyRotationOffset_Implementation(float Value) { this->BodyRotationOffset = Value; }
 
 void UIKBodyComponent::SetAllHitBoxes(
 	UCapsuleComponent* index_01_l,

@@ -1,4 +1,20 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+/*
+*   This file is part of the Unreal Body Plugin by Kaz Voeten.
+*   Copyright (C) 2021 Kaz Voeten
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #pragma once
 
@@ -54,7 +70,7 @@ public:
 		float BodyOffset = -20.0f
 		UMETA(Tooltip = "Units to move the body from the camera looking direction to avoid clipping.");
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "IKBody")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IKBody")
 		float BodyRotationOffset = -90.0f 
 		UMETA(Tooltip = "Corrective rotation to align the body with the camera direction.");
 
@@ -70,11 +86,8 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 		void UpdatePlayerHeight(float Value);
 
-	UFUNCTION(Server, Reliable, BlueprintCallable)
+	UFUNCTION(Server, Unreliable, BlueprintCallable)
 		void UpdateBodyOffset(float Value);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable)
-		void UpdateBodyRotationOffset(float Value);
 
 	/*
 		System Ticks
@@ -139,6 +152,11 @@ public:
 
 	FAnimGraphFingerIK FingerIKValues = FAnimGraphFingerIK();
 
+	// Movement variables
+	float MovementDirection = 0.0f;
+	float MovementSpeed = 0.0f;
+	float FInterpSpeed = 0.0f;
+
 private:
 	FTransform LastCameraPosition = FTransform();
 
@@ -156,11 +174,6 @@ private:
 	// Grip States
 	AActor* LeftGrip = nullptr;
 	AActor* RightGrip = nullptr;
-
-	// Movement variables
-	float MovementDirection = 0.0f;
-	float MovementSpeed = 0.0f;
-	float FInterpSpeed = 0.0f;
 
 	// Teleport
 	bool IsTeleporting = false;

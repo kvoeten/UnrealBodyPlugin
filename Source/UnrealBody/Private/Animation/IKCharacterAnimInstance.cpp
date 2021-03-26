@@ -1,9 +1,20 @@
-﻿// Project:         Advanced Locomotion System V4 on C++
-// Copyright:       Copyright (C) 2020 Doğa Can Yanıkoğlu
-// License:         MIT License (http://www.opensource.org/licenses/mit-license.php)
-// Source Code:     https://github.com/dyanikoglu/ALSV4_CPP
-// Original Author: Doğa Can Yanıkoğlu
-// Contributors:    Haziq Fadhil, Jens Bjarne Myhre
+﻿/*
+*   This file is part of the Unreal Body Plugin by Kaz Voeten.
+*   Copyright (C) 2021 Kaz Voeten
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 
 #include "Animation/IKCharacterAnimInstance.h"
@@ -40,7 +51,7 @@ void UIKCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		UpdateHandValues();
 		UpdateHeadValues();
-		UpdateMovementValues(DeltaSeconds);
+		UpdateMovementValues();
 		UpdateFingerIKValues();
 	}
 	else UE_LOG(LogIKBodyAnimation, Warning, TEXT("Pawn owner has no IKBodyComponent"));
@@ -155,9 +166,10 @@ void UIKCharacterAnimInstance::UpdateHandValues()
 	ArmIKValues.RightHandRotation = ArmIKValues.RightTargetTransform.GetRotation().Rotator() + LeftHandOffset.GetRotation().Rotator();
 }
 
-void UIKCharacterAnimInstance::UpdateMovementValues(float DeltaSeconds)
+void UIKCharacterAnimInstance::UpdateMovementValues()
 {
-	
+	MovementValues.Speed = this->BodyComponent->MovementSpeed;
+	MovementValues.Direction = this->BodyComponent->MovementDirection;
 }
 
 void UIKCharacterAnimInstance::UpdateFingerIKValues()
