@@ -27,7 +27,6 @@ UIKBodyComponent::UIKBodyComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.TickInterval = .01f;
 	SetNetAddressable();
-	SetIsReplicated(true);
 }
 
 void UIKBodyComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
@@ -147,8 +146,6 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 	// Always set Z to enable seamless crouching
 	FVector BodyLocation = FVector(BodyCurrentLocation.X, BodyCurrentLocation.Y, CameraCurrentPosition.GetLocation().Z - this->PlayerHeight);
 	this->Body->SetWorldLocation(BodyLocation);
-
-	UE_LOG(LogIKBodyComponent, Warning, TEXT("MovementSpeed: %f"), this->MovementSpeed);
 }
 
 /*
@@ -302,6 +299,7 @@ void UIKBodyComponent::TickFingerIK(float DeltaTime)
 			case EFingerBone::thumb_02_r:
 			case EFingerBone::thumb_03_r:
 				GripTarget = RightGrip;
+				break;
 			}
 
 			float TargetAlpha = GripTarget == nullptr ? 0 : 1.0f;

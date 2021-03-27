@@ -16,7 +16,6 @@
 *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "Animation/IKCharacterAnimInstance.h"
 #include "Library/AnimationStructLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
