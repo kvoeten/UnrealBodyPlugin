@@ -74,11 +74,6 @@ void UIKCharacterAnimInstance::UpdateFootIK()
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(Character);
 
-	// Debug Draw
-	const FName TraceTag("FeetTraces");
-	World->DebugDrawTraceTag = TraceTag;
-	Params.TraceTag = TraceTag;
-
 	// Trace both feet and set result in AnimGraph
 	TraceFoot(LeftFoot, &FootIKValues.LeftFootLocation, 
 		&FootIKValues.LeftFootRotation, World, &Params);
@@ -141,9 +136,16 @@ void UIKCharacterAnimInstance::UpdateHandValues()
 {
 	USkeletalMeshComponent* OwnerComp = GetOwningComponent();
 
+	// Get offsets
+	FTransform LeftOffset = OwnerComp->GetSocketTransform("hand_lSocket", ERelativeTransformSpace::RTS_ParentBoneSpace);
+	FTransform RightOffset = OwnerComp->GetSocketTransform("hand_rSocket", ERelativeTransformSpace::RTS_ParentBoneSpace);
+
+	// Fix left offset
+	LeftOffset.ScaleTranslation(-1);
+
 	// Get controller transform * offset
-	ArmIKValues.LeftTargetTransform = this->BodyComponent->LeftController->GetComponentTransform();
-	ArmIKValues.RightTargetTransform = this->BodyComponent->RightController->GetComponentTransform();
+	ArmIKValues.LeftTargetTransform = this->BodyComponent->LeftController->GetComponentTransform() * LeftOffset;
+	ArmIKValues.RightTargetTransform = this->BodyComponent->RightController->GetComponentTransform() * RightOffset;
 }
 
 void UIKCharacterAnimInstance::UpdateMovementValues()

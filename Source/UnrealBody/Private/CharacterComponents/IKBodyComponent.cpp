@@ -131,7 +131,7 @@ void UIKBodyComponent::TickBodyMovement(float DeltaTime)
 	else
 	{
 		// Tick towards location based on movement speed
-		this->BodyCurrentLocation = UKismetMathLibrary::VInterpTo(this->BodyCurrentLocation, this->BodyTargetLocation, DeltaTime, MovementSpeed);
+		this->BodyCurrentLocation = UKismetMathLibrary::VInterpTo(this->BodyCurrentLocation, this->BodyTargetLocation, DeltaTime, MovementSpeed * this->MovementSpeedMultiplier);
 		this->Body->SetWorldLocation(BodyCurrentLocation);
 	}
 

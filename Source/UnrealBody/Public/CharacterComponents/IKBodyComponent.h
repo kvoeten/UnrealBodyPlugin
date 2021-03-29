@@ -53,7 +53,15 @@ public:
 		UCameraComponent* Camera = nullptr;
 
 	/*
-		Movement Values, replicated (server changes are sent to clients)
+	 * Non-Replicated Setting variables
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+		float MovementSpeedMultiplier = 1.0f
+		UMETA(Tooltip = "Increase or decrease the speed of the character during movement. Use this to avoid the character lagging behind over longer distances.");
+
+
+	/*
+	 * Movement Values, replicated (server changes are sent to clients)
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = "IKBody")
 		float MovementThreshold = 60.0f 

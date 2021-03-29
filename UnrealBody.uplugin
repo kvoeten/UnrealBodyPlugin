@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.1",
+	"VersionName": "1.0.2",
 	"FriendlyName": "Unreal Body Plugin",
 	"Description": "Standalone plugin that provides an IK body, with finger collision, animated by 3 tracking points.",
 	"Category": "VR",
