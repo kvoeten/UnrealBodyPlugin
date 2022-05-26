@@ -20,7 +20,7 @@
 			"Name" : "UnrealBody",
 			"Type" : "Runtime",
 			"LoadingPhase" : "PostConfigInit",
-			"WhitelistPlatforms" : [ "Win64" ]
+			"WhitelistPlatforms" : [ "Win64","Android" ]
 		}
 	]
 }
