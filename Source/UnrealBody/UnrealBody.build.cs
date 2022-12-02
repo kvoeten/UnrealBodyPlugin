@@ -24,6 +24,7 @@ public class UnrealBody : ModuleRules
 	public UnrealBody(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_1;
         bEnableExceptions = true;
 		
         PublicIncludePaths.AddRange(

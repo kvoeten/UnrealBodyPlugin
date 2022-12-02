@@ -36,7 +36,7 @@ void UIKCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		return;
 	}
 
-	this->BodyComponent = (UIKBodyComponent*)Character->GetComponentByClass(UIKBodyComponent::StaticClass());
+	this->BodyComponent = Cast<UIKBodyComponent>(Character->GetComponentByClass(UIKBodyComponent::StaticClass()));
 	if (this->BodyComponent != nullptr)
 	{
 		UpdateHandValues();
@@ -54,6 +54,8 @@ void UIKCharacterAnimInstance::UpdateFootIK()
 {
 	// Get actor socket locations
 	USkeletalMeshComponent* OwnerComp = GetOwningComponent();
+	if(!OwnerComp) return;
+	
 	FVector LeftFoot = OwnerComp->GetSocketLocation("foot_l");
 	FVector RightFoot = OwnerComp->GetSocketLocation("foot_r");
 	
@@ -75,8 +77,11 @@ void UIKCharacterAnimInstance::UpdateFootIK()
 void UIKCharacterAnimInstance::TraceFoot(FVector Foot, FVector* ResultLocation, 
 	FRotator* ResultRotation, UWorld* World, FCollisionQueryParams* Params)
 {
+	USkeletalMeshComponent* OwnerComp = GetOwningComponent();
+	if(!OwnerComp) return;
+	
 	// Establish trace start & end point
-	const float ZRoot = GetOwningComponent()->GetComponentLocation().Z;
+	const float ZRoot = OwnerComp->GetComponentLocation().Z;
 	const FVector Start = FVector(Foot.X, Foot.Y, ZRoot + 60);
 	const FVector End = FVector(Foot.X, Foot.Y, ZRoot);
 
@@ -115,6 +120,8 @@ void UIKCharacterAnimInstance::TraceFoot(FVector Foot, FVector* ResultLocation,
 
 void UIKCharacterAnimInstance::UpdateHeadValues()
 {
+	if (!this->BodyComponent->Camera) return;
+	
 	// Simply set head values to match camera at all times.
 	HeadIKValues.HeadRotation = this->BodyComponent->Camera->GetComponentRotation();
 	HeadIKValues.HeadLocation = this->BodyComponent->Camera->GetComponentLocation();
@@ -125,7 +132,14 @@ void UIKCharacterAnimInstance::UpdateHeadValues()
 
 void UIKCharacterAnimInstance::UpdateHandValues()
 {
-	USkeletalMeshComponent* OwnerComp = GetOwningComponent();
+	const USkeletalMeshComponent* OwnerComp = GetOwningComponent();
+	if (!OwnerComp) return;
+
+	if (!this->BodyComponent->LeftController || !this->BodyComponent->RightController)
+	{
+		UE_LOG(LogIKBodyAnimation, Warning, TEXT("Unable to get controller transforms. This is normal in animation preview, but a setup issue in game."))
+		return;
+	}
 
 	// Get offsets
 	FTransform LeftOffset = OwnerComp->GetSocketTransform("hand_lSocket", ERelativeTransformSpace::RTS_ParentBoneSpace);

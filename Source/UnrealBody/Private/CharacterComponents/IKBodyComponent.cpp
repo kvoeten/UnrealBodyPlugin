@@ -310,8 +310,7 @@ void UIKBodyComponent::TickFingerIK(float DeltaTime)
 			else if (Capsule != nullptr && GripTarget != nullptr)
 			{
 				// Check if capsule is colliding with target actor since being moved previous tick
-				TArray <FOverlapInfo> OverlapInfo;
-				if (Capsule->GetOverlapsWithActor(GripTarget, OverlapInfo))
+				if (Capsule->IsOverlappingActor(GripTarget))
 				{
 					*this->FingerStates.StateMap.Find(Bone) = true;
 					continue; // Skip to next bone
