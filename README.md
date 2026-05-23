@@ -2,6 +2,12 @@
 # UnrealBodyPlugin
 A standalone unreal engine plugin for simulating a full body with finger IK in virtual reality.
 
+## Status
+
+Legacy Unreal Engine VR plugin originally built for full-body IK and finger interaction experiments in Unreal Engine 4. Kept public because it has been useful to other developers, but it does not reflect current best practises and state of the art VR animations.
+
+Not actively maintained for current Unreal Engine versions.
+
 ## Setup
 1. Download the latest release, and unzip the files into your project's /plugins folder.
 2. (Re)start the editor, and make sure the plugin is activated
